@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -22,6 +22,17 @@ type Spot struct {
 // Le type s'appelle ListeSpots, c'est une slice (controleur à distance) de spot.
 type ListeSpots []Spot
 
+
+func getFile() {
+	content, err := os.ReadFile("./spots.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("File contents: %s", content)
+}
+
+
 var nosSpots = ListeSpots{
 	//aller récupérer les infos du JSON
 	{
@@ -32,6 +43,26 @@ var nosSpots = ListeSpots{
 	},
 }
 
+
+// bloc de code tiré de la doc qui permet de lire le fichier json dans le terminal
+
+	content, err := os.ReadFile("./spots.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	
+	fmt.Printf("File contents: %s", content)
+	
+
+
+
+
+
+
+
+
+
+
 // fonction d'affichage vers la page d'accueil
 func homeLink(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome Home")
@@ -39,12 +70,14 @@ func homeLink(w http.ResponseWriter, r *http.Request) {
 
 func createSpot(w http.ResponseWriter, r *http.Request) {
 	var newSpot Spot
-	reqBody, err := io.ReadAll(r.Body)
+	// reqBody, err := os.ReadAll(r.Body)
+	content, err := os.ReadFile("./spots.json")
 	if err != nil {
-		fmt.Fprintf(w, "impossible de créer un spot")
+		fmt.Fprintf(w, "echec lire fichier")
 	}
 
-	json.Unmarshal(reqBody, &newSpot)
+	// json.Unmarshal(reqBody, &newSpot)
+	json.Unmarshal(content, &newSpot)
 	nosSpots = append(nosSpots, newSpot)
 	w.WriteHeader(http.StatusCreated)
 
@@ -54,7 +87,7 @@ func createSpot(w http.ResponseWriter, r *http.Request) {
 func getOneSpot(w http.ResponseWriter, r *http.Request) {
 	spotID := mux.Vars(r)["id"]
 
-	// _ : ignore un paramètre (met un itérateur nul, itéère mais l'itérateur ne possède aucunce valeur)
+	// _ : ignore un paramètre (met un itérateur nul, itère mais l'itérateur ne possède aucunce valeur)
 	// singleSpot : le spot qu'on récupère
 	for _, singleSpot := range nosSpots {
 		if singleSpot.ID == spotID {
@@ -65,39 +98,55 @@ func getOneSpot(w http.ResponseWriter, r *http.Request) {
 
 func getAllSpots(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(nosSpots)
-}
 
-func updateSpot(w http.ResponseWriter, r *http.Request) {
-	spotID := mux.Vars(r)["id"]
-	var updatedSpot Spot
 
-	reqBody, err := io.ReadAll(r.Body)
+	content, err := os.ReadFile("./spots.json")
 	if err != nil {
-		fmt.Fprintf(w, "update échouée")
+		log.Fatal(err)
 	}
-	json.Unmarshal(reqBody, &updatedSpot)
 
-	for i, singleSpot := range nosSpots {
-		if singleSpot.ID == spotID {
-			singleSpot.SurfBreak = updatedSpot.SurfBreak
-			singleSpot.Photos = updatedSpot.Photos
-			singleSpot.Address = updatedSpot.Address
-			nosSpots = append(nosSpots[:i], singleSpot)
-			json.NewEncoder(w).Encode(singleSpot)
-		}
-	}
+	fmt.Printf("File contents: %s", content)
+
+
+
+
+
+
+
 }
 
-func deleteSpot(w http.ResponseWriter, r *http.Request) {
-	spotID := mux.Vars(r)["id"]
+// func updateSpot(w http.ResponseWriter, r *http.Request) {
+// 	spotID := mux.Vars(r)["id"]
+// 	var updatedSpot Spot
 
-	for i, singleSpot := range nosSpots {
-		if singleSpot.ID == spotID {
-			nosSpots = append(nosSpots[:i], nosSpots[i+1:]...)
-			fmt.Fprintf(w, "The Spot with ID %v has been deleted successfully", spotID)
-		}
-	}
-}
+// 	// reqBody, err := os.ReadAll(r.Body)
+// 	content, err := os.ReadFile("./")
+// 	if err != nil {
+// 		fmt.Fprintf(w, "update échouée")
+// 	}
+// 	json.Unmarshal(reqBody, &updatedSpot)
+
+// 	for i, singleSpot := range nosSpots {
+// 		if singleSpot.ID == spotID {
+// 			singleSpot.SurfBreak = updatedSpot.SurfBreak
+// 			singleSpot.Photos = updatedSpot.Photos
+// 			singleSpot.Address = updatedSpot.Address
+// 			nosSpots = append(nosSpots[:i], singleSpot)
+// 			json.NewEncoder(w).Encode(singleSpot)
+// 		}
+// 	}
+// }
+
+// func deleteSpot(w http.ResponseWriter, r *http.Request) {
+// 	spotID := mux.Vars(r)["id"]
+
+// 	for i, singleSpot := range nosSpots {
+// 		if singleSpot.ID == spotID {
+// 			nosSpots = append(nosSpots[:i], nosSpots[i+1:]...)
+// 			fmt.Fprintf(w, "The Spot with ID %v has been deleted successfully", spotID)
+// 		}
+// 	}
+// }
 
 func main() {
 	router := mux.NewRouter().StrictSlash(true)
@@ -105,7 +154,7 @@ func main() {
 	router.HandleFunc("/spot", createSpot).Methods("POST")
 	router.HandleFunc("/spots", getAllSpots).Methods("GET")
 	router.HandleFunc("/spots/{id}", getOneSpot).Methods("GET")
-	router.HandleFunc("/spots/{id}", updateSpot).Methods("PATCH")
-	router.HandleFunc("/spots/{id}", deleteSpot).Methods("DELETE")
+	// router.HandleFunc("/spots/{id}", updateSpot).Methods("PATCH")
+	// router.HandleFunc("/spots/{id}", deleteSpot).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
