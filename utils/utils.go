@@ -38,5 +38,6 @@ func SaveSpots() error {
 	defer file.Close()
 
 	OneSpotData := models.SpotData{Records: models.NosSpots}
-	return json.NewEncoder(file).Encode(OneSpotData)
+	json.NewEncoder(file).Encode(OneSpotData)
+	return nil
 }
