@@ -1,4 +1,4 @@
-module BackProjetSurf/main.go
+module BackProjetSurf
 
 go 1.23.4
 
