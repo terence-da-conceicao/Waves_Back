@@ -98,7 +98,8 @@ func saveSpots() error {
 	defer file.Close()
 
 	spotData := SpotData{Records: nosSpots}
-	return json.NewEncoder(file).Encode(spotData)
+	json.NewEncoder(file).Encode(spotData)
+	return nil
 }
 
 // Handlers CRUD
@@ -125,6 +126,7 @@ func createSpot(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(newSpot)
+
 }
 
 func getAllSpots(w http.ResponseWriter, r *http.Request) {
@@ -164,6 +166,7 @@ func updateSpot(w http.ResponseWriter, r *http.Request) {
 		if singleSpot.ID == spotID {
 			nosSpots[i] = updatedSpot
 			err = saveSpots()
+
 			if err != nil {
 				http.Error(w, "Erreur lors de la sauvegarde", http.StatusInternalServerError)
 				return
