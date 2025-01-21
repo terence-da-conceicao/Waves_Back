@@ -4,6 +4,8 @@ import (
 	"BackProjetSurf/router"
 	"BackProjetSurf/utils"
 	"log"
+
+	"github.com/joho/godotenv"
 )
 
 // "BackProjetSurf/models"
@@ -22,6 +24,14 @@ import (
 //go get "BackProjetSurf/models" situé dans /main avec la console.
 
 func main() {
+	// ajout de la librairie godotenv qui permet d'aller charger dansles variables d'environnement le contenu de .env
+	errEnv := godotenv.Load(".env")
+
+	if errEnv != nil {
+		log.Fatalf("Error loading .env file")
+	}
+	//fmt.Println(os.Getenv("JSON_FILE_PATH"))
+
 	err := utils.LoadSpots()
 	if err != nil {
 		log.Fatalf("Erreur lors du chargement des spots : %v", err)

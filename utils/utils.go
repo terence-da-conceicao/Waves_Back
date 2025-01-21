@@ -8,7 +8,8 @@ import (
 )
 
 func LoadSpots() error {
-	file, err := os.Open(models.JsonFilePath)
+	//Getenv est une fonction native de os
+	file, err := os.Open(os.Getenv("JSON_FILE_PATH"))
 	if err != nil {
 		if os.IsNotExist(err) {
 			// Si le fichier n'existe pas, initialisez une liste vide
@@ -31,7 +32,7 @@ func LoadSpots() error {
 }
 
 func SaveSpots() error {
-	file, err := os.Create(models.JsonFilePath)
+	file, err := os.Create(os.Getenv("JSON_FILE_PATH"))
 	if err != nil {
 		return err
 	}

@@ -1,7 +1,5 @@
 package models
 
-const JsonFilePath = "spots.json"
-
 var NosSpots []SpotRecord
 
 type Photo struct {
